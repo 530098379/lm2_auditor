@@ -9,7 +9,13 @@ import sys
 if __name__ == '__main__':
 	sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
 	# 爬取的网页链接
-	r= requests.get("https://olms.dol-esa.gov/query/getOrgQry.do")
+	url = 'https://olms.dol-esa.gov/query/orgReport.do'
+	data = {'reportType':'detailResults','detailID':'1','detailReport':'unionDetail',
+			'rptView':'undefined','historyCount':'0','screenName':'orgQueryResultsPage',
+			'searchPage':'/getOrgQry.do','pageAction':'-1','startRow':'1',
+			'endRow':'1','rowCount':'1','sortColumn':'','sortAscending':'false',
+			'reportTypeSave':'orgResults'}
+	r =requests.post(url,data)
 	# 类型
 	# print(type(r))
 	print(r.status_code)
