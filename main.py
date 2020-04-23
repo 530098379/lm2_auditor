@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import io
 import sys
 import re
+import xlwt
+import os
 
 if __name__ == '__main__':
 	sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
@@ -45,9 +47,17 @@ if __name__ == '__main__':
 	bs = BeautifulSoup(result,'html.parser')
 	# 获取已爬取内容中的Fiscal Year行的链接
 	data1=bs.select('div[class="ERDS-form-text"] br')
+
+	count=0
+	workbook = xlwt.Workbook()
+	sheet = workbook.add_sheet("Sheet Name1")
 	# 循环打印输出
 	for j in data1:
 		# 判断下一个元素是字符串
 		if isinstance(j.next, str):
 			if re.match("Question\s12", j.next):
 				print(j.next)
+				sheet.write(count,0, "1") # row, column, value
+				sheet.write(count,1, "2019")
+				sheet.write(count,2, j.next)
+	workbook.save(os.getcwd() + '/Excel_test1.xls')
