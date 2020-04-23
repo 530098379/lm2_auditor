@@ -4,9 +4,22 @@ import io
 import sys
 import re
 import xlwt
+import xlrd
 import os
 
 if __name__ == '__main__':
+	excel_data = xlrd.open_workbook("lm2_auditor2.xls")
+	table = excel_data.sheet_by_index(0)
+
+	for rowNum in range(table.nrows):
+		rowVale = table.row_values(rowNum)
+		for colNum in range(table.ncols):
+			if rowNum > 0 and colNum == 0:
+				print(int(rowVale[0]))
+			else:
+				print(rowVale[colNum])
+		print("---------------")
+
 	sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
 	# 获取cookie
 	url = 'https://olms.dol-esa.gov/query/getOrgQry.do'
@@ -60,4 +73,4 @@ if __name__ == '__main__':
 				sheet.write(count,0, "1") # row, column, value
 				sheet.write(count,1, "2019")
 				sheet.write(count,2, j.next)
-	workbook.save(os.getcwd() + '/Excel_test1.xls')
+	workbook.save(os.getcwd() + '/result.xls')
