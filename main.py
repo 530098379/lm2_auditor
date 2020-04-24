@@ -9,7 +9,7 @@ import os
 import time
 
 if __name__ == '__main__':
-
+	print("开始")
 	# 获取cookie
 	url = 'https://olms.dol-esa.gov/query/getOrgQry.do'
 	r =requests.get(url)
@@ -25,7 +25,7 @@ if __name__ == '__main__':
 	for rowNum in range(table.nrows):
 		rowVale = table.row_values(rowNum)
 		file_num = int(rowVale[0])
-
+		print("工会编号:" + str(file_num))
 		# 获取当前工会的所有年报
 		url = 'https://olms.dol-esa.gov/query/orgReport.do'
 		data = {'reportType':'detailResults','detailID':file_num,'detailReport':'unionDetail',
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 				'endRow':'1','rowCount':'1','sortColumn':'','sortAscending':'false',
 				'reportTypeSave':'orgResults'}
 		r =requests.post(url, data, cookies=cookie_jar)
-		print(r.status_code)
+		#print(r.status_code)
 
 		result = r.text
 		# 再次封装，获取具体标签内的内容
@@ -57,7 +57,7 @@ if __name__ == '__main__':
 						'endRow':'25','rowCount':'25','sortColumn':'','sortAscending':'false',
 						'reportTypeSave':'detailResults'}
 				r =requests.post(url, data, cookies=cookie_jar)
-				print(r.status_code)
+				#print(r.status_code)
 
 				result = r.text
 				# 再次封装，获取具体标签内的内容
@@ -70,11 +70,13 @@ if __name__ == '__main__':
 					# 判断下一个元素是字符串
 					if isinstance(j.next, str):
 						if re.match("Question\s12", j.next):
-							print(j.next)
+							print("年份:" + year)
+							print("内容:" + j.next)
 							sheet.write(count,0, "1") # row, column, value
 							sheet.write(count,1, year)
 							sheet.write(count,2, j.next)
 							count = count + 1;
-			time.sleep(5)
+			time.sleep(10)
 
 	workbook.save(os.getcwd() + '/result.xls')
+	print("完成")
