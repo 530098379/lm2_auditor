@@ -6,6 +6,7 @@ import re
 import xlwt
 import xlrd
 import os
+import time
 
 if __name__ == '__main__':
 	excel_data = xlrd.open_workbook("lm2_auditor2.xls")
@@ -20,7 +21,6 @@ if __name__ == '__main__':
 				print(rowVale[colNum])
 		print("---------------")
 
-	sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
 	# 获取cookie
 	url = 'https://olms.dol-esa.gov/query/getOrgQry.do'
 	r =requests.get(url)
@@ -49,12 +49,13 @@ if __name__ == '__main__':
 	for j in data1:
 		year = (j.text)[0:4]
 		if year.isdigit() and int(year) > 2005 and (j.text).find('Report') >= 0:
-			print(j.text)
-			print(j['href'])
+			#print(j.text)
+			#print(j['href'])
+			strlist = j['href'].split(',')
 
 			# 获取当前工会的Question 12
 			url = 'https://olms.dol-esa.gov/query/orgReport.do'
-			data = {'reportType':'formReport','detailID':'707004','detailReport':'LM2Form',
+			data = {'reportType':'formReport','detailID':strlist[1],'detailReport':'LM2Form',
 					'rptView':'undefined','historyCount':'1','screenName':'orgDetailPage',
 					'searchPage':'/getOrgQry.do','pageAction':'-1','startRow':'1',
 					'endRow':'25','rowCount':'25','sortColumn':'','sortAscending':'false',
@@ -75,7 +76,8 @@ if __name__ == '__main__':
 					if re.match("Question\s12", j.next):
 						print(j.next)
 						sheet.write(count,0, "1") # row, column, value
-						sheet.write(count,1, "2019")
+						sheet.write(count,1, year)
 						sheet.write(count,2, j.next)
 						count = count + 1;
+		time.sleep(5)
 	workbook.save(os.getcwd() + '/result.xls')
