@@ -88,6 +88,16 @@ if __name__ == "__main__":
 							count = count + 1;
 			# 延迟5秒，防止访问太快
 			time.sleep(5)
+		# 释放变量内存
+		del r_cok
+		del r_union
+		del result_union
+		del bs_union
+		del data_union
+		del r_detail
+		del result_detail
+		del bs_detail
+		del data_detail
 	# 输出结果到Excel
 	workbook.save(os.getcwd() + "/result.xls")
 	print("完成",flush = True)
