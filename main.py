@@ -9,7 +9,8 @@ import os
 import time
 
 if __name__ == "__main__":
-	print("开始")
+	sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
+	print("开始", flush = True)
 	# 获取cookie
 	url = "https://olms.dol-esa.gov/query/getOrgQry.do"
 	r =requests.get(url)
@@ -67,9 +68,9 @@ if __name__ == "__main__":
 					# 判断下一个元素是字符串
 					if isinstance(j.next, str):
 						if re.match("Question\s12", j.next):
-							print("工会编号:" + str(file_num))
-							print("年份:" + year)
-							print("内容:" + j.next)
+							print("工会编号:" + str(file_num), flush = True)
+							print("年份:" + year, flush = True)
+							print("内容:" + j.next, flush = True)
 							print("--------------------------")
 							sheet.write(count,0, file_num) # row, column, value
 							sheet.write(count,1, year)
@@ -78,4 +79,4 @@ if __name__ == "__main__":
 			time.sleep(5)
 
 	workbook.save(os.getcwd() + "/result.xls")
-	print("完成")
+	print("完成",flush = True)
