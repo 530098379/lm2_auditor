@@ -22,6 +22,7 @@ if __name__ == "__main__":
 	# 读取文件里面的工会代码
 	excel_data = xlrd.open_workbook("lm2_auditor2.xls")
 	table = excel_data.sheet_by_index(0)
+	del excel_data
 
 	for rowNum in range(table.nrows):
 		rowVale = table.row_values(rowNum)
@@ -34,12 +35,12 @@ if __name__ == "__main__":
 
 		# 获取当前工会的所有年报
 		url_union = "https://olms.dol-esa.gov/query/orgReport.do"
-		data_union = {"reportType":"detailResults","detailID":file_num,"detailReport":"unionDetail",
+		param_union = {"reportType":"detailResults","detailID":file_num,"detailReport":"unionDetail",
 				"rptView":"undefined","historyCount":"0","screenName":"orgQueryResultsPage",
 				"searchPage":"/getOrgQry.do","pageAction":"-1","startRow":"1",
 				"endRow":"1","rowCount":"1","sortColumn":"","sortAscending":"false",
 				"reportTypeSave":"orgResults"}
-		r_union =requests.post(url_union, data_union, cookies=cookie_jar)
+		r_union =requests.post(url_union, param_union, cookies=cookie_jar)
 		#print(r.status_code)
 
 		# 再次封装，获取具体标签内的内容
@@ -58,12 +59,12 @@ if __name__ == "__main__":
 
 				# 获取当前工会的Question 12
 				url_detail = "https://olms.dol-esa.gov/query/orgReport.do"
-				data_detail = {"reportType":"formReport","detailID":strlist[1],"detailReport":"LM2Form",
+				param_detail = {"reportType":"formReport","detailID":strlist[1],"detailReport":"LM2Form",
 						"rptView":"undefined","historyCount":"1","screenName":"orgDetailPage",
 						"searchPage":"/getOrgQry.do","pageAction":"-1","startRow":"1",
 						"endRow":"25","rowCount":"25","sortColumn":"","sortAscending":"false",
 						"reportTypeSave":"detailResults"}
-				r_detail =requests.post(url_detail, data_detail, cookies=cookie_jar)
+				r_detail =requests.post(url_detail, param_detail, cookies=cookie_jar)
 				#print(r.status_code)
 
 				# 再次封装，获取具体标签内的内容
@@ -86,15 +87,24 @@ if __name__ == "__main__":
 							sheet.write(count,1, year)
 							sheet.write(count,2, k.next)
 							count = count + 1;
+					del k
 			# 延迟5秒，防止访问太快
 			time.sleep(5)
+			del j
 		# 释放变量内存
 		del r_cok
-		del r_union
+		del url_cok
+
+		del r_union		
+		del url_union
+		del param_union
 		del result_union
 		del bs_union
 		del data_union
+
 		del r_detail
+		del url_detail
+		del param_detail
 		del result_detail
 		del bs_detail
 		del data_detail
