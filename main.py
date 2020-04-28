@@ -91,6 +91,9 @@ if __name__ == "__main__":
 			# 延迟5秒，防止访问太快
 			time.sleep(5)
 			del j
+			# 输出结果到Excel
+			workbook.save(os.getcwd() + "/result.xls")
+
 		# 释放变量内存
 		del r_cok
 		del url_cok
@@ -108,6 +111,5 @@ if __name__ == "__main__":
 		del result_detail
 		del bs_detail
 		del data_detail
-	# 输出结果到Excel
-	workbook.save(os.getcwd() + "/result.xls")
+
 	print("完成",flush = True)
