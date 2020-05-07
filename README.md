@@ -1,5 +1,5 @@
 # windows安装依赖命令
-pip install requests
+pip install requests  
 pip install xlwt  
 pip install xlrd  
 pip install BeautifulSoup  
