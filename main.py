@@ -15,11 +15,15 @@ import datetime
 if __name__ == "__main__":
 	sys.stdout = io.TextIOWrapper(sys.stdout.buffer,encoding='utf-8')
 	print("开始", flush = True)
-	last_num = 0
-	last_year = datetime.datetime.now().year
+	add_flag = False #字符串拼接flag
+	question_text = "" #输出字符串
+	last_num = 0 #最后一次的工会编号
+	last_year = datetime.datetime.now().year # 最后一次的年份，默认值为本年
+	# 文件名
 	excel_file_name = os.getcwd() + "\\result_" + \
 		datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".xls"
 
+	# 获取最后一次的工会编号以及年份
 	my_file = Path("./the_last_dance.txt")
 	if my_file.is_file():
 		with open('./the_last_dance.txt', 'r') as f:
@@ -42,6 +46,7 @@ if __name__ == "__main__":
 			rowVale = table.row_values(rowNum)
 			file_num = int(rowVale[0]) # 获取Excel第一列，工会代码
 
+			# 如果当年工会编码小于最后一次的编码，则跳过去
 			if file_num < last_num:
 				continue
 
@@ -100,17 +105,28 @@ if __name__ == "__main__":
 						# 判断下一个元素是字符串
 						if isinstance(k.next, str):
 							if re.match("Question\s12", k.next):
-								print("工会编号:" + str(file_num), flush = True)
-								print("年份:" + year, flush = True)
-								print("内容:" + k.next, flush = True)
-								print("--------------------------")
-								sheet.write(count,0, file_num) # row, column, value
-								sheet.write(count,1, year)
-								sheet.write(count,2, k.next)
-								count = count + 1;
+								question_text = question_text + k.next + " "
+								add_flag = True
+								continue
+
+							if add_flag:
+								if re.match("Question", k.next):
+									print("工会编号:" + str(file_num), flush = True)
+									print("年份:" + year, flush = True)
+									print("内容:" + question_text, flush = True)
+									print("--------------------------")
+									sheet.write(count,0, file_num) # row, column, value
+									sheet.write(count,1, year)
+									sheet.write(count,2, question_text)
+									count = count + 1;
+									question_text = ""
+									add_flag = False
+								else:
+									# 如果question12的内容是换行的，拼接数据
+									question_text = question_text + k.next
 						del k
-				# 延迟5秒，防止访问太快
-				time.sleep(5)
+				# 延迟2秒，防止访问太快
+				time.sleep(2)
 				del j
 				# 输出结果到Excel
 				workbook.save(excel_file_name)
@@ -133,9 +149,11 @@ if __name__ == "__main__":
 			del bs_detail
 			del data_detail
 	finally:
+		# 中断或者异常，记录最后的工会编码以及年份
 		with open('./the_last_dance.txt', 'w') as obj_f:
 			obj_f.write(str(file_num) + "," + year)
 
+	# 执行完成后，删除文件
 	if(os.path.exists('./the_last_dance.txt')):
 		os.remove('./the_last_dance.txt')
 
