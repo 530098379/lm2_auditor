@@ -19,4 +19,4 @@ curl https://bootstrap.pypa.io/get-pip.py | python3
 pip3 install requests  
 pip3 install xlwt  
 pip3 install xlrd  
-pip3 install BeautifulSoup  
+pip3 install BeautifulSoup4  

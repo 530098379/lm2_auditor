@@ -110,7 +110,8 @@ if __name__ == "__main__":
 								continue
 
 							if add_flag:
-								if re.match("Question", k.next):
+								if re.match("Question", k.next) or re.match("Schedule", k.next) \
+									or re.match("Statement", k.next):
 									print("工会编号:" + str(file_num), flush = True)
 									print("年份:" + year, flush = True)
 									print("内容:" + question_text, flush = True)
