@@ -126,6 +126,13 @@ if __name__ == "__main__":
 									# 如果question12的内容是换行的，拼接数据
 									question_text = question_text + k.next
 						del k
+
+					del r_detail
+					del url_detail
+					del param_detail
+					del result_detail
+					del bs_detail
+					del data_detail
 				# 延迟2秒，防止访问太快
 				time.sleep(2)
 				del j
@@ -143,12 +150,6 @@ if __name__ == "__main__":
 			del bs_union
 			del data_union
 
-			del r_detail
-			del url_detail
-			del param_detail
-			del result_detail
-			del bs_detail
-			del data_detail
 	finally:
 		# 中断或者异常，记录最后的工会编码以及年份
 		with open('./the_last_dance.txt', 'w') as obj_f:
