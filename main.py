@@ -19,6 +19,8 @@ if __name__ == "__main__":
 	question_text = "" #输出字符串
 	last_num = 0 #最后一次的工会编号
 	last_year = datetime.datetime.now().year # 最后一次的年份，默认值为本年
+	year = ""
+	file_year = ""
 	# 文件名
 	excel_file_name = os.getcwd() + "\\result_" + \
 		datetime.datetime.now().strftime("%Y%m%d%H%M%S") + ".xls"
@@ -42,6 +44,11 @@ if __name__ == "__main__":
 	del excel_data
 
 	try:
+		# 获取cookie
+		url_cok = "https://olms.dol-esa.gov/query/getOrgQry.do"
+		r_cok =requests.get(url_cok)
+		cookie_jar = r_cok.cookies
+
 		for rowNum in range(table.nrows):
 			rowVale = table.row_values(rowNum)
 			file_num = int(rowVale[0]) # 获取Excel第一列，工会代码
@@ -50,13 +57,8 @@ if __name__ == "__main__":
 			if file_num < last_num:
 				continue
 
-			# 获取cookie
-			url_cok = "https://olms.dol-esa.gov/query/getOrgQry.do"
-			r_cok =requests.get(url_cok)
-			cookie_jar = r_cok.cookies
-
 			# 获取当前工会的所有年报
-			url_union = "https://olms.dol-esa.gov/query/orgReport.do"
+			url_union = "https://olmsapps.dol.gov/query/orgReport.do"
 			param_union = {"reportType":"detailResults","detailID":file_num,"detailReport":"unionDetail",
 					"rptView":"undefined","historyCount":"0","screenName":"orgQueryResultsPage",
 					"searchPage":"/getOrgQry.do","pageAction":"-1","startRow":"1",
@@ -75,17 +77,18 @@ if __name__ == "__main__":
 			# 循环打印输出
 			for j in data_union:
 				year = (j.text)[0:4]
+				file_year = rowVale[1]
 
 				# 获取的链接，年份大于2005，并且是报告的时候，打开链接
-				if year.isdigit() and int(year) > 2005 and (j.text).find("Report") >= 0:
+				if year.isdigit() and int(year) == file_year and (j.text).find("Report") >= 0:
 					if int(year) > last_year:
 						continue
 
 					strlist = j["href"].split(",") # 获取年报的编码
 
-					# 获取当前工会的Question 12
-					url_detail = "https://olms.dol-esa.gov/query/orgReport.do"
-					param_detail = {"reportType":"formReport","detailID":strlist[1],"detailReport":"LM2Form",
+					# 获取当前工会的Question 14
+					url_detail = "https://olmsapps.dol.gov/query/orgReport.do"
+					param_detail = {"reportType":"formReport","detailID":strlist[1],"detailReport":"LM3Form",
 							"rptView":"undefined","historyCount":"1","screenName":"orgDetailPage",
 							"searchPage":"/getOrgQry.do","pageAction":"-1","startRow":"1",
 							"endRow":"25","rowCount":"25","sortColumn":"","sortAscending":"false",
@@ -101,12 +104,25 @@ if __name__ == "__main__":
 					data_detail = bs_detail.select("div[class='ERDS-form-text'] br")
 
 					# 循环打印输出
+					data_detail_count = 0
 					for k in data_detail:
+						data_detail_count = data_detail_count + 1
 						# 判断下一个元素是字符串
 						if isinstance(k.next, str):
-							if re.match("Question\s12", k.next):
+							if re.match("Question\s14", k.next):
 								question_text = question_text + k.next + " "
 								add_flag = True
+								if data_detail_count == len(data_detail):
+									print("工会编号:" + str(file_num), flush = True)
+									print("年份:" + year, flush = True)
+									print("内容:" + question_text, flush = True)
+									print("--------------------------")
+									sheet.write(count,0, file_num) # row, column, value
+									sheet.write(count,1, year)
+									sheet.write(count,2, question_text)
+									count = count + 1;
+									question_text = ""
+									add_flag = False
 								continue
 
 							if add_flag:
@@ -140,8 +156,8 @@ if __name__ == "__main__":
 				workbook.save(excel_file_name)
 
 			# 释放变量内存
-			del r_cok
-			del url_cok
+			#del r_cok
+			#del url_cok
 
 			del r_union		
 			del url_union
