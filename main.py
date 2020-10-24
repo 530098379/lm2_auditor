@@ -44,11 +44,6 @@ if __name__ == "__main__":
 	del excel_data
 
 	try:
-		# 获取cookie
-		url_cok = "https://olms.dol-esa.gov/query/getOrgQry.do"
-		r_cok =requests.get(url_cok)
-		cookie_jar = r_cok.cookies
-
 		for rowNum in range(table.nrows):
 			rowVale = table.row_values(rowNum)
 			file_num = int(rowVale[0]) # 获取Excel第一列，工会代码
@@ -56,6 +51,20 @@ if __name__ == "__main__":
 			# 如果当年工会编码小于最后一次的编码，则跳过去
 			if file_num < last_num:
 				continue
+
+			# 获取cookie
+			url_cok = "https://olms.dol-esa.gov/query/getOrgQry.do"
+			r_cok =requests.get(url_cok)
+			cookie_jar = r_cok.cookies
+
+			# 获取当前工会
+			url_union = "https://olmsapps.dol.gov/query/getOrgQryResult.do"
+			param_union = {"fileNumber":file_num,"unionAbbrv":"","orgName":"","unionType":"","desigName":"",
+					"desigNumber":"","city":"","state":"","zipCode1":"","zipCode2":"","assetsAmtMin":"",
+					"assetsAmtMax":"","liabilitiesAmtMin":"","receiptsAmtMin":"","receiptsAmtMax":"",
+					"disbursementsAmtMin":"","disbursementsAmtMax":"","membershipCntMin":"","membershipCntMax":"",
+					"fiscalYear":"","formType":"","screenName":"orgQueryPage"}
+			r_union =requests.post(url_union, param_union, cookies=cookie_jar)
 
 			# 获取当前工会的所有年报
 			url_union = "https://olmsapps.dol.gov/query/orgReport.do"
@@ -141,8 +150,19 @@ if __name__ == "__main__":
 								else:
 									# 如果question12的内容是换行的，拼接数据
 									question_text = question_text + k.next
-						del k
 
+						if data_detail_count == len(data_detail):
+							print("工会编号:" + str(file_num), flush = True)
+							print("年份:" + year, flush = True)
+							print("内容:" + question_text, flush = True)
+							print("--------------------------")
+							sheet.write(count,0, file_num) # row, column, value
+							sheet.write(count,1, year)
+							sheet.write(count,2, question_text)
+							count = count + 1;
+							question_text = ""
+							add_flag = False
+						del k
 					del r_detail
 					del url_detail
 					del param_detail
@@ -156,8 +176,8 @@ if __name__ == "__main__":
 				workbook.save(excel_file_name)
 
 			# 释放变量内存
-			#del r_cok
-			#del url_cok
+			del r_cok
+			del url_cok
 
 			del r_union		
 			del url_union
