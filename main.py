@@ -39,7 +39,7 @@ if __name__ == "__main__":
 	sheet = workbook.add_sheet("Sheet Name1")
 
 	# 读取文件里面的工会代码
-	excel_data = xlrd.open_workbook("lm2_auditor_input.xls")
+	excel_data = xlrd.open_workbook("lm3_auditor_input.xls")
 	table = excel_data.sheet_by_index(0)
 	del excel_data
 
@@ -54,17 +54,8 @@ if __name__ == "__main__":
 
 			# 获取cookie
 			url_cok = "https://olms.dol-esa.gov/query/getOrgQry.do"
-			r_cok =requests.get(url_cok)
+			r_cok = requests.get(url_cok)
 			cookie_jar = r_cok.cookies
-
-			# 获取当前工会
-			url_union = "https://olmsapps.dol.gov/query/getOrgQryResult.do"
-			param_union = {"fileNumber":file_num,"unionAbbrv":"","orgName":"","unionType":"","desigName":"",
-					"desigNumber":"","city":"","state":"","zipCode1":"","zipCode2":"","assetsAmtMin":"",
-					"assetsAmtMax":"","liabilitiesAmtMin":"","receiptsAmtMin":"","receiptsAmtMax":"",
-					"disbursementsAmtMin":"","disbursementsAmtMax":"","membershipCntMin":"","membershipCntMax":"",
-					"fiscalYear":"","formType":"","screenName":"orgQueryPage"}
-			r_union =requests.post(url_union, param_union, cookies=cookie_jar)
 
 			# 获取当前工会的所有年报
 			url_union = "https://olmsapps.dol.gov/query/orgReport.do"
@@ -73,7 +64,7 @@ if __name__ == "__main__":
 					"searchPage":"/getOrgQry.do","pageAction":"-1","startRow":"1",
 					"endRow":"1","rowCount":"1","sortColumn":"","sortAscending":"false",
 					"reportTypeSave":"orgResults"}
-			r_union =requests.post(url_union, param_union, cookies=cookie_jar)
+			r_union = requests.post(url_union, param_union, cookies=cookie_jar)
 			#print(r.status_code)
 
 			# 再次封装，获取具体标签内的内容
@@ -88,7 +79,7 @@ if __name__ == "__main__":
 				year = (j.text)[0:4]
 				file_year = rowVale[1]
 
-				# 获取的链接，年份大于2005，并且是报告的时候，打开链接
+				# 获取的链接，年份等于Excel记录的年份，并且是报告的时候，打开链接
 				if year.isdigit() and int(year) == file_year and (j.text).find("Report") >= 0:
 					if int(year) > last_year:
 						continue
@@ -102,7 +93,7 @@ if __name__ == "__main__":
 							"searchPage":"/getOrgQry.do","pageAction":"-1","startRow":"1",
 							"endRow":"25","rowCount":"25","sortColumn":"","sortAscending":"false",
 							"reportTypeSave":"detailResults"}
-					r_detail =requests.post(url_detail, param_detail, cookies=cookie_jar)
+					r_detail = requests.post(url_detail, param_detail, cookies=cookie_jar)
 					#print(r.status_code)
 
 					# 再次封装，获取具体标签内的内容
@@ -148,7 +139,7 @@ if __name__ == "__main__":
 									question_text = ""
 									add_flag = False
 								else:
-									# 如果question12的内容是换行的，拼接数据
+									# 如果question14的内容是换行的，拼接数据
 									question_text = question_text + k.next
 
 						if data_detail_count == len(data_detail):
